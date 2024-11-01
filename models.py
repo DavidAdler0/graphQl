@@ -24,12 +24,13 @@ class MissionModel(Base):
     aircraft_failed = Column(Float)
     aircraft_damaged = Column(Float)
     aircraft_lost = Column(Float)
-    targets = relationship('TargetModel', back_populates='missions')
+    target = relationship('TargetModel', back_populates='mission')
 
 class CountryModel(Base):
     __tablename__ = 'countries'
     country_id = Column(Integer, primary_key=True)
     country_name = Column(String)
+    cities = relationship('CityModel', back_populates='country')
 
 class CityModel(Base):
     __tablename__ = 'cities'
@@ -38,23 +39,25 @@ class CityModel(Base):
     country_id = Column(Integer, ForeignKey('countries.country_id'))
     latitude = Column(Float)
     longitude = Column(Float)
+    targets = relationship('TargetModel', back_populates='city')
+    country = relationship('CountryModel', back_populates='cities')
 
 class TargetTypesModel(Base):
     __tablename__ = 'targettypes'
     target_type_id = Column(Integer, primary_key=True)
     target_type_name = Column(String)
-    targets = relationship('TargetModel', back_populates='target_types')
+    # target = relationship('TargetModel', back_populates='target_types')
 
 class TargetModel(Base):
     __tablename__ = 'targets'
     target_id = Column(Integer, primary_key=True)
     mission_id = Column(Integer, ForeignKey('missions.mission_id'))
+    target_industry = Column(String)
     city_id = Column(Integer, ForeignKey('cities.city_id'))
     target_type_id = Column(Integer, ForeignKey('targettypes.target_type_id'))
     target_priority = Column(Integer)
-    target_industry = Column(String)
-    missions = relationship('MissionModel', back_populates='targets')
+    mission = relationship('MissionModel', back_populates='target')
+    city = relationship('CityModel', back_populates='')
 
-    target_types = relationship('TargetTypesModel', back_populates='targets')
 
 

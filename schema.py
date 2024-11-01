@@ -38,9 +38,9 @@ class Target(SQLAlchemyObjectType):
 class Query(graphene.ObjectType):
     mission_by_id = graphene.Field(Mission, mission_id=graphene.Int(required=True))
     missions_by_date_range = graphene.List(Mission, min_date=graphene.Date(required=True), max_date=graphene.Date(required=True))
-    mission_by_target_industry = graphene.List(Mission, target_industry=graphene.String(required=True))
+    missions_by_target_industry = graphene.List(Mission, target_industry=graphene.String(required=True))
 
-    mission_results_by_target_type = graphene.Field(Mission, target_type=graphene.String(required=True))
+    mission_results_by_target_type = graphene.List(Mission, target_type=graphene.Int(required=True))
     @staticmethod
     def resolve_mission_by_id(self, info, mission_id):
         return db_session.query(MissionModel).get(mission_id)
@@ -50,8 +50,11 @@ class Query(graphene.ObjectType):
         return db_session.query(MissionModel).filter(MissionModel.mission_date.between(min_date, max_date))
     @staticmethod
     def resolve_missions_by_target_industry(self, info, target_industry):
-        return db_session.query(MissionModel).join(MissionModel.targets).filter(TargetModel.target_industry == target_industry).all()
+        return db_session.query(MissionModel).join(MissionModel.target).filter(TargetModel.target_industry == target_industry).all()
 
+    @staticmethod
+    def resolve_mission_results_by_target_type(self, info, target_type):
+        return db_session.query(MissionModel).join(MissionModel.target).filter(TargetModel.target_type_id == target_type).all()
 
     # def resolve_users_by_name(self, info, name_substring):
     #     substring = f"%{name_substring}%"
